@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="look-up-svgrepo-com.svg" type="image/svg+xml">
+<title>Tipos de Investigación</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0f172a;font-family:'Segoe UI',sans-serif;color:#e2e8f0;min-height:100vh}
+
+  /* ── HEADER ── */
+  header{background:#1e293b;border-bottom:1px solid #334155;padding:14px 16px;text-align:center;position:sticky;top:0;z-index:100}
+  header h1{font-size:clamp(14px,4vw,20px);color:#fff;font-weight:800;letter-spacing:.5px}
+  header p{font-size:clamp(10px,3vw,13px);color:#94a3b8;margin-top:3px}
+
+  /* ── LAYOUT ── */
+  .container{max-width:960px;margin:0 auto;padding:16px}
+
+  /* ── CENTER NODE ── */
+  .center-node{
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    border-radius:16px;padding:18px 24px;text-align:center;
+    margin-bottom:20px;box-shadow:0 4px 24px #4f46e540
+  }
+  .center-node h2{font-size:clamp(16px,5vw,24px);font-weight:900;letter-spacing:1px}
+  .center-node p{font-size:clamp(11px,3vw,13px);color:#c4b5fd;margin-top:4px}
+
+  /* ── CATEGORY CARDS ── */
+  .categories{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+
+  .card{background:#1e293b;border-radius:14px;overflow:hidden;border:1px solid #334155;transition:box-shadow .2s}
+  .card:hover{box-shadow:0 4px 16px #0004}
+
+  .card-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:13px 16px;cursor:pointer;user-select:none;gap:10px
+  }
+  .card-header:active{opacity:.85}
+  .cat-title{display:flex;align-items:center;gap:10px;flex:1}
+  .cat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+  .cat-label{font-size:clamp(12px,3.5vw,14px);font-weight:700;color:#f1f5f9}
+  .arrow{font-size:14px;color:#64748b;transition:transform .3s;flex-shrink:0}
+  .card.open .arrow{transform:rotate(180deg)}
+
+  /* ── CHILDREN ── */
+  .card-body{display:none;padding:0 12px 12px;gap:8px;flex-direction:column}
+  .card.open .card-body{display:flex}
+
+  .child{
+    border-radius:10px;padding:10px 14px;cursor:pointer;
+    border:1px solid transparent;transition:all .2s
+  }
+  .child:hover{filter:brightness(1.1)}
+  .child-label{font-size:clamp(12px,3.5vw,14px);font-weight:600}
+  .child-desc{font-size:clamp(10px,3vw,12px);color:#94a3b8;margin-top:3px;line-height:1.5;display:none}
+  .child.open .child-desc{display:block}
+  .child.open{border-color:currentColor}
+
+  /* ── TOOLTIP PANEL (desktop) ── */
+  .tip-panel{
+    background:#1e293b;border:1px solid #334155;border-radius:12px;
+    padding:14px 18px;margin-bottom:16px;display:none;
+    animation:fadeIn .2s ease
+  }
+  .tip-panel.visible{display:block}
+  .tip-panel strong{font-size:14px;color:#fff}
+  .tip-panel p{font-size:13px;color:#cbd5e1;margin-top:5px;line-height:1.6}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ── FOOTER ── */
+  footer{text-align:center;padding:16px;color:#475569;font-size:11px;border-top:1px solid #1e293b;margin-top:8px}
+
+  /* ── DESKTOP: show SVG radial map ── */
+  @media(min-width:700px){
+    .mobile-tree{display:none}
+    .desktop-map{display:block}
+  }
+  @media(max-width:699px){
+    .mobile-tree{display:block}
+    .desktop-map{display:none}
+  }
+  .desktop-map{width:100%;overflow:hidden}
+  .desktop-map svg{width:100%;max-width:900px;display:block;margin:0 auto}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Tipos, Métodos y Técnicas de Investigación</h1>
+  <p>Toca una categoría para expandirla</p>
+</header>
+
+<div class="container">
+
+  <!-- DESKTOP MAP -->
+  <div class="desktop-map">
+    <div id="deskTip" class="tip-panel">
+      <strong id="dTipTitle"></strong>
+      <p id="dTipDesc"></p>
+    </div>
+    <svg id="map" viewBox="0 0 1000 820"></svg>
+  </div>
+
+  <!-- MOBILE TREE -->
+  <div class="mobile-tree">
+    <div class="center-node">
+      <h2>TIPOS DE INVESTIGACIÓN</h2>
+      <p>Clasificaciones, métodos y técnicas</p>
+    </div>
+    <div class="categories" id="mobileCards"></div>
+  </div>
+
+</div>
+
+<footer>Bernard (2012); Gerring &amp; Badie (s. f.); Guthrie (s. f.); <em>Principles of scientific research</em> (2023); Sobolev (2023). Formato APA 7.ª ed.</footer>
+
+<script>
+const data = [
+  {
+    label:"Según la Finalidad", icon:"🎯", color:"#0891b2", bg:"#0e4a5e",
+    children:[
+      {label:"Pura (Básica)", desc:"Genera conocimiento teórico y leyes generales sin buscar aplicación inmediata. Ej.: nuevas teorías en física cuántica."},
+      {label:"Aplicada", desc:"Utiliza la teoría existente para resolver problemas concretos. Ej.: desarrollo de software educativo."},
+    ]
+  },
+  {
+    label:"Según el Enfoque", icon:"🔬", color:"#059669", bg:"#064e3b",
+    children:[
+      {label:"Cualitativa", desc:"Comprende significados y experiencias de forma holística. Diseño flexible, muestreo intencional, análisis inductivo."},
+      {label:"Cuantitativa", desc:"Mide variables y prueba hipótesis con datos numéricos. Diseño estructurado, muestreo probabilístico, análisis deductivo."},
+    ]
+  },
+  {
+    label:"Según la Profundidad", icon:"📊", color:"#d97706", bg:"#4d2c00",
+    children:[
+      {label:"Diagnóstica", desc:"Identifica problemas o necesidades en un contexto para fundamentar una intervención posterior."},
+      {label:"Descriptiva", desc:"Describe características de fenómenos respondiendo ¿quién?, ¿qué?, ¿dónde? y ¿cuándo? Sin establecer causas."},
+      {label:"Explicativa", desc:"Establece relaciones de causa-efecto, explicando por qué y bajo qué condiciones ocurre un fenómeno."},
+    ]
+  },
+  {
+    label:"Según el Lugar", icon:"📍", color:"#dc2626", bg:"#4c0519",
+    children:[
+      {label:"Documental", desc:"Analiza fuentes secundarias existentes: libros, artículos, archivos. Ej.: revisiones sistemáticas."},
+      {label:"De Campo", desc:"Recolecta datos directamente donde ocurren los hechos (fuentes primarias). Ej.: entrevistas in situ."},
+    ]
+  },
+  {
+    label:"Según las Variables", icon:"⚗️", color:"#7c3aed", bg:"#2e1065",
+    children:[
+      {label:"Experimental", desc:"El investigador manipula variables independientes bajo condiciones controladas con grupos experimental y control."},
+      {label:"No Experimental", desc:"Observa fenómenos en su contexto natural sin manipular variables. Suele ser descriptiva o correlacional."},
+    ]
+  },
+  {
+    label:"Según el Tiempo", icon:"⏱️", color:"#be185d", bg:"#500724",
+    children:[
+      {label:"Transversal", desc:"Recolecta datos en un único momento temporal (fotografía de la realidad). Rápida y económica de realizar."},
+      {label:"Longitudinal", desc:"Recolecta datos en distintos momentos para analizar cambios y tendencias a lo largo del tiempo."},
+    ]
+  },
+  {
+    label:"Técnicas e Instrumentos", icon:"🛠️", color:"#b45309", bg:"#431407",
+    children:[
+      {label:"Observación", desc:"Registro sistemático de comportamientos en su contexto natural. Instrumento: guía de observación / checklist."},
+      {label:"Entrevista", desc:"Interacción verbal para profundizar en percepciones y experiencias. Instrumento: guion de entrevista."},
+      {label:"Cuestionario", desc:"Conjunto de preguntas escritas para medir variables específicas. Instrumento: formulario papel o digital."},
+      {label:"Encuesta", desc:"Obtención de datos estadísticos de una muestra representativa. Instrumento: cuestionario aplicado a muestra."},
+      {label:"Censo", desc:"Recolección de datos de la totalidad de la población de interés. Instrumento: cuestionario poblacional."},
+      {label:"Bitácora / Diario", desc:"Registro reflexivo y cronológico del investigador durante el trabajo de campo. Instrumento: cuaderno de notas."},
+    ]
+  },
+];
+
+/* ── MOBILE CARDS ── */
+const mobileCards = document.getElementById("mobileCards");
+data.forEach(cat => {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const hdr = document.createElement("div");
+  hdr.className = "card-header";
+  hdr.innerHTML = `
+    <div class="cat-title">
+      <div class="cat-icon" style="background:${cat.bg}">${cat.icon}</div>
+      <span class="cat-label">${cat.label}</span>
+    </div>
+    <span class="arrow">▼</span>`;
+  hdr.onclick = () => card.classList.toggle("open");
+
+  const body = document.createElement("div");
+  body.className = "card-body";
+
+  cat.children.forEach(ch => {
+    const c = document.createElement("div");
+    c.className = "child";
+    c.style.cssText = `background:${cat.bg};color:${cat.color}`;
+    c.innerHTML = `<div class="child-label">${ch.label}</div><div class="child-desc">${ch.desc}</div>`;
+    c.onclick = e => { e.stopPropagation(); c.classList.toggle("open"); };
+    body.appendChild(c);
+  });
+
+  card.appendChild(hdr); card.appendChild(body);
+  mobileCards.appendChild(card);
+});
+
+/* ── DESKTOP SVG ── */
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("map");
+const tip = document.getElementById("deskTip");
+const tTitle = document.getElementById("dTipTitle");
+const tDesc = document.getElementById("dTipDesc");
+const cx=500, cy=410, r1=190, r2=335;
+const n = data.length;
+
+function el(tag,attrs,txt){
+  const e=document.createElementNS(NS,tag);
+  for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);
+  if(txt!==undefined)e.textContent=txt;
+  return e;
+}
+function polar(a,r){return{x:Math.cos(a)*r,y:Math.sin(a)*r}}
+function showTip(title,desc){tTitle.textContent=title;tDesc.textContent=desc;tip.classList.add("visible")}
+
+const ll=el("g",{}); svg.appendChild(ll);
+const nl=el("g",{}); svg.appendChild(nl);
+
+data.forEach((cat,i)=>{
+  const ang = (2*Math.PI*i/n)-Math.PI/2;
+  const bp=polar(ang,r1); const bx=cx+bp.x,by=cy+bp.y;
+  const cc=cat.color; const cnt=cat.children.length;
+  const sp=Math.min(0.42,0.62/cnt);
+
+  ll.appendChild(el("line",{x1:cx,y1:cy,x2:bx,y2:by,stroke:cc,"stroke-width":2.5,"stroke-opacity":0.5}));
+
+  cat.children.forEach((ch,j)=>{
+    const ca=ang+(j-(cnt-1)/2)*sp;
+    const cp=polar(ca,r2); const chx=cx+cp.x,chy=cy+cp.y;
+    ll.appendChild(el("line",{x1:bx,y1:by,x2:chx,y2:chy,stroke:cc,"stroke-width":1.5,"stroke-opacity":0.35}));
+
+    const words=ch.label.split(" ");
+    const lns=ch.label.includes("/")?[ch.label]:
+              words.length>2?[words.slice(0,Math.ceil(words.length/2)).join(" "),words.slice(Math.ceil(words.length/2)).join(" ")]:
+              [ch.label];
+
+    const g=el("g",{style:"cursor:pointer"});
+    g.appendChild(el("ellipse",{cx:chx,cy:chy,rx:58,ry:23,fill:"#1e293b",stroke:cc,"stroke-width":1.5}));
+    lns.forEach((ln,li)=>{
+      g.appendChild(el("text",{x:chx,y:chy+(li-(lns.length-1)/2)*13,"text-anchor":"middle","dominant-baseline":"middle",fill:"#e2e8f0","font-size":10,"font-weight":"600"},ln));
+    });
+    g.addEventListener("click",()=>showTip(ch.label,ch.desc));
+    nl.appendChild(g);
+  });
+
+  const bLines=cat.label.split(" ");
+  const bLns=bLines.length>2?[bLines.slice(0,Math.ceil(bLines.length/2)).join(" "),bLines.slice(Math.ceil(bLines.length/2)).join(" ")]:bLines;
+  const bg=el("g",{style:"cursor:pointer"});
+  bg.appendChild(el("ellipse",{cx:bx,cy:by,rx:72,ry:29,fill:"#1e293b",stroke:cc,"stroke-width":2.5}));
+  bg.appendChild(el("text",{x:bx,y:by-1,"text-anchor":"middle","dominant-baseline":"middle",fill:"#fff","font-size":"10.5","font-weight":"700"},cat.label));
+  bg.addEventListener("click",()=>showTip(cat.label,"Categoría: "+cat.label+" — despliega "+cat.children.length+" tipos."));
+  nl.appendChild(bg);
+});
+
+const cg=el("g",{style:"cursor:pointer"});
+cg.appendChild(el("ellipse",{cx,cy,rx:84,ry:46,fill:"#4f46e5",stroke:"#818cf8","stroke-width":2}));
+["TIPOS DE","INVESTIGACIÓN"].forEach((ln,li)=>{
+  cg.appendChild(el("text",{x:cx,y:cy+(li-0.5)*18,"text-anchor":"middle","dominant-baseline":"middle",fill:"#fff","font-size":15,"font-weight":800,"letter-spacing":1},ln));
+});
+cg.addEventListener("click",()=>showTip("Tipos de Investigación","Clasificaciones según finalidad, enfoque, profundidad, lugar, variables y tiempo."));
+nl.appendChild(cg);
+</script>
+</body>
+</html>
